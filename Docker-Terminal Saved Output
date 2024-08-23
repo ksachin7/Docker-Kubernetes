@@ -515,4 +515,408 @@ CONTAINER ID   IMAGE          COMMAND                  CREATED             STATU
 98f63a8613ca   nginx:latest   "/docker-entrypoint.…"   19 minutes ago      Created                                   friendly_swartz
 e89492a174d3   nginx:latest   "/docker-entrypoint.…"   About an hour ago   Up About an hour   0.0.0.0:8080->80/tcp   elastic_hellman
 
-❯ 
+❯ docker container prune
+
+WARNING! This will remove all stopped containers.
+Are you sure you want to continue? [y/N] y
+Deleted Containers:
+98f63a8613caa398baf049c042c3d67fce871a7bce6105f4efca52eaa2cba35a
+e89492a174d312f9b168328e02785e94ecd1e1fdcc04ce0a42aa3ef3cdd3ac50
+
+Total reclaimed space: 1.093kB
+❯ docker-containers
+
+CONTAINER ID   NAMES     IMAGE     PORTS     STATUS
+
+Last login: Thu Aug 22 22:12:13 on ttys004
+
+❯ docker-containers
+CONTAINER ID   NAMES     IMAGE     PORTS     STATUS
+
+❯ cd Desktop/Lab/Docker-Kubernetes/websites/Personal
+
+❯ cd ~/Desktop/Lab/Docker-Kubernetes/websites/Personal
+
+❯ docker run --name personal -v $(pwd) -d -p 8080:80 nginx
+a0e9c859f5a0f6526760673819c4991a15d45a9bfee37fb86740afb2fecd7b23
+
+❯ docker ps -a
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS                  NAMES
+a0e9c859f5a0   nginx     "/docker-entrypoint.…"   8 seconds ago   Up 7 seconds   0.0.0.0:8080->80/tcp   personal
+
+❯ # docker volumes
+
+❯ docker volume ls
+DRIVER    VOLUME NAME
+local     e1511f072cb746c6a0406a9d76e8483f3bf764786d119a35ac1b2c1f3c947869
+
+❯ docker volume inspect e1511f072cb746c6a0406a9d76e8483f3bf764786d119a35ac1b2c1f3c947869
+[
+    {
+        "CreatedAt": "2024-08-23T10:04:28Z",
+        "Driver": "local",
+        "Labels": {
+            "com.docker.volume.anonymous": ""
+        },
+        "Mountpoint": "/var/lib/docker/volumes/e1511f072cb746c6a0406a9d76e8483f3bf764786d119a35ac1b2c1f3c947869/_data",
+        "Name": "e1511f072cb746c6a0406a9d76e8483f3bf764786d119a35ac1b2c1f3c947869",
+        "Options": null,
+        "Scope": "local"
+    }
+]
+
+❯ docker run --name personal -v $(pwd):/usr/share/nginx/html:ro -d -p 8080:80 nginx
+docker: Error response from daemon: Conflict. The container name "/personal" is already in use by container "a0e9c859f5a0f6526760673819c4991a15d45a9bfee37fb86740afb2fecd7b23". You have to remove (or rename) that container to be able to reuse that name.
+See 'docker run --help'.
+
+❯ cd ~/Desktop/Lab/Docker-Kubernetes/websites/portfolio
+
+❯ docker run --name portfolio -v $(pwd):/usr/share/nginx/html:ro -d -p 8080:80 nginx
+790a1c52d36441f21929078e192ad52e32ff81022aaefc45a95c252b6962375c
+docker: Error response from daemon: driver failed programming external connectivity on endpoint portfolio (ebb47a615ce5917f3bdc8dd959a70bb1ff0f5ddc26012d47543550a2c6119a16): Bind for 0.0.0.0:8080 failed: port is already allocated.
+
+❯ docker volume ls
+DRIVER    VOLUME NAME
+local     e1511f072cb746c6a0406a9d76e8483f3bf764786d119a35ac1b2c1f3c947869
+
+❯ docker ps -a
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                  NAMES
+790a1c52d364   nginx     "/docker-entrypoint.…"   10 minutes ago   Created                                portfolio
+a0e9c859f5a0   nginx     "/docker-entrypoint.…"   17 minutes ago   Up 17 minutes   0.0.0.0:8080->80/tcp   personal
+
+❯ docker inspect 790a1c52d364
+[
+    {
+        "Id": "790a1c52d36441f21929078e192ad52e32ff81022aaefc45a95c252b6962375c",
+        "Created": "2024-08-23T10:11:48.475963542Z",
+        "Path": "/docker-entrypoint.sh",
+        "Args": [
+            "nginx",
+            "-g",
+            "daemon off;"
+        ],
+        "State": {
+            "Status": "created",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 128,
+            "Error": "driver failed programming external connectivity on endpoint portfolio (ebb47a615ce5917f3bdc8dd959a70bb1ff0f5ddc26012d47543550a2c6119a16): Bind for 0.0.0.0:8080 failed: port is already allocated",
+            "StartedAt": "0001-01-01T00:00:00Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:5ef79149e0ec84a7a9f9284c3f91aa3c20608f8391f5445eabe92ef07dbda03c",
+        "ResolvConfPath": "/var/lib/docker/containers/790a1c52d36441f21929078e192ad52e32ff81022aaefc45a95c252b6962375c/resolv.conf",
+        "HostnamePath": "",
+        "HostsPath": "/var/lib/docker/containers/790a1c52d36441f21929078e192ad52e32ff81022aaefc45a95c252b6962375c/hosts",
+        "LogPath": "",
+        "Name": "/portfolio",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "/Users/sachin/Desktop/Lab/Docker-Kubernetes/websites/portfolio:/usr/share/nginx/html:ro"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {
+                "80/tcp": [
+                    {
+                        "HostIp": "",
+                        "HostPort": "8080"
+                    }
+                ]
+            },
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                49,
+                158
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/asound",
+                "/proc/acpi",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/sys/firmware",
+                "/sys/devices/virtual/powercap"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/0b8174174cf0d2d9764cf7884d0b0ef321e946b177cf6e1331b3a67f46eccf20-init/diff:/var/lib/docker/overlay2/0a12f0b9b0146226cfc05c1f72599e70302c53e759f9f3de88c75d864c2dfab7/diff:/var/lib/docker/overlay2/6c7a7575f8f1e7547f1dad3742cb7b59c5566cda5805f28e1a9e6cc3b343202f/diff:/var/lib/docker/overlay2/03e3aa7424b2e2a00ad2f8809ec784b9c349ddfd27accf12fec260bd807fe665/diff:/var/lib/docker/overlay2/d8b91e403d1db97e9c5827107bf9c9f508c87b36fca6c16c0854cb9e83d478a9/diff:/var/lib/docker/overlay2/b29777f71e348694345c3c0802431302e3ef956cf3731f5a0ba043ef86843609/diff:/var/lib/docker/overlay2/e946912c42d357ef8da642ed48582fbe908c59a2f8e1011ddf127f76eb3a2f1e/diff:/var/lib/docker/overlay2/923355de80559a499b5f7b0af34272014d2377dfd98b153b5b868ecfcb8c5a2d/diff",
+                "MergedDir": "/var/lib/docker/overlay2/0b8174174cf0d2d9764cf7884d0b0ef321e946b177cf6e1331b3a67f46eccf20/merged",
+                "UpperDir": "/var/lib/docker/overlay2/0b8174174cf0d2d9764cf7884d0b0ef321e946b177cf6e1331b3a67f46eccf20/diff",
+                "WorkDir": "/var/lib/docker/overlay2/0b8174174cf0d2d9764cf7884d0b0ef321e946b177cf6e1331b3a67f46eccf20/work"
+            },
+            "Name": "overlay2"
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/Users/sachin/Desktop/Lab/Docker-Kubernetes/websites/portfolio",
+                "Destination": "/usr/share/nginx/html",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "790a1c52d364",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "ExposedPorts": {
+                "80/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "NGINX_VERSION=1.27.1",
+                "NJS_VERSION=0.8.5",
+                "NJS_RELEASE=1~bookworm",
+                "PKG_RELEASE=1~bookworm",
+                "DYNPKG_RELEASE=2~bookworm"
+            ],
+            "Cmd": [
+                "nginx",
+                "-g",
+                "daemon off;"
+            ],
+            "Image": "nginx",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": [
+                "/docker-entrypoint.sh"
+            ],
+            "OnBuild": null,
+            "Labels": {
+                "maintainer": "NGINX Docker Maintainers \u003cdocker-maint@nginx.com\u003e"
+            },
+            "StopSignal": "SIGQUIT"
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "",
+            "SandboxKey": "",
+            "Ports": {},
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "MacAddress": "",
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "MacAddress": "",
+                    "DriverOpts": null,
+                    "NetworkID": "c5d48dc87a6e1d060b827e65046c12a2dbe8bbe252dd0ddf399158528ae042fe",
+                    "EndpointID": "",
+                    "Gateway": "",
+                    "IPAddress": "",
+                    "IPPrefixLen": 0,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        }
+    }
+]                                                                                             
+❯ nano ~/.zshrc
+
+❯ source ~/.zshrc
+
+❯ docker ps -q
+a0e9c859f5a0
+
+❯ docker ps -a -q
+790a1c52d364
+a0e9c859f5a0
+
+❯ docker-prune-volumes                                             
+Stopping Containers & Removing all Docker volumes...
+a0e9c859f5a0
+WARNING! This will remove anonymous local volumes not used by at least one container.
+Are you sure you want to continue? [y/N] n
+
+❯ docker ps -a
+CONTAINER ID   IMAGE     COMMAND                  CREATED       STATUS                      PORTS     NAMES
+790a1c52d364   nginx     "/docker-entrypoint.…"   5 hours ago   Created                               portfolio
+a0e9c859f5a0   nginx     "/docker-entrypoint.…"   5 hours ago   Exited (0) 30 seconds ago             personal
+
+❯ docker-prune-volumes
+Stopping Containers & Removing all Docker volumes...
+/Users/sachin/Desktop/Lab/Docker-Kubernetes/docker-scripts.sh: line 56: Stopped: : command not found
+
+❯ docker start $(docker ps -a -q)
+
+790a1c52d364
+Error response from daemon: driver failed programming external connectivity on endpoint personal (1e9c1f0fdc39c99f7d09375b321a378142622b26da3017d49157dbf7d06c37d2): Bind for 0.0.0.0:8080 failed: port is already allocated
+Error: failed to start containers: a0e9c859f5a0
+
+❯ docker ps -a                   
+CONTAINER ID   IMAGE     COMMAND                  CREATED       STATUS                       PORTS                  NAMES
+790a1c52d364   nginx     "/docker-entrypoint.…"   5 hours ago   Up 17 seconds                0.0.0.0:8080->80/tcp   portfolio
+a0e9c859f5a0   nginx     "/docker-entrypoint.…"   5 hours ago   Exited (128) 4 minutes ago                          personal
+
+❯ docker-prune-volumes           
+Stopping Containers & Removing all Docker volumes...
+Stopped: 790a1c52d364
+WARNING! This will remove anonymous local volumes not used by at least one container.
+Are you sure you want to continue? [y/N] y
+Total reclaimed space: 0B
+
+❯ docker ps -a        
+CONTAINER ID   IMAGE     COMMAND                  CREATED       STATUS                          PORTS     NAMES
+790a1c52d364   nginx     "/docker-entrypoint.…"   5 hours ago   Exited (0) About a minute ago             portfolio
+a0e9c859f5a0   nginx     "/docker-entrypoint.…"   6 hours ago   Exited (128) 6 minutes ago                personal
+
+❯ docker volume ls
+DRIVER    VOLUME NAME
+local     e1511f072cb746c6a0406a9d76e8483f3bf764786d119a35ac1b2c1f3c947869
+
+❯ docker-prune-volumes
+No running containers to stop.
+
+Volumes before pruning
+---------------------
+DRIVER    VOLUME NAME
+local     e1511f072cb746c6a0406a9d76e8483f3bf764786d119a35ac1b2c1f3c947869
+
+Total reclaimed space: 0B
+
+Volumes after pruning
+---------------------
+DRIVER    VOLUME NAME
+local     e1511f072cb746c6a0406a9d76e8483f3bf764786d119a35ac1b2c1f3c947869
+
+
+❯ docker stop a0e9c859f5a0f6526760673819c4991a15d45a9bfee37fb86740afb2fecd7b23
+
+a0e9c859f5a0f6526760673819c4991a15d45a9bfee37fb86740afb2fecd7b23
+
+❯ docker volume rm e1511f072cb746c6a0406a9d76e8483f3bf764786d119a35ac1b2c1f3c947869
+
+Error response from daemon: remove e1511f072cb746c6a0406a9d76e8483f3bf764786d119a35ac1b2c1f3c947869: volume is in use - [a0e9c859f5a0f6526760673819c4991a15d45a9bfee37fb86740afb2fecd7b23]
+
+❯ docker rm a0e9c859f5a0f6526760673819c4991a15d45a9bfee37fb86740afb2fecd7b23
+
+a0e9c859f5a0f6526760673819c4991a15d45a9bfee37fb86740afb2fecd7b23
+
+❯ docker volume rm e1511f072cb746c6a0406a9d76e8483f3bf764786d119a35ac1b2c1f3c947869
+
+e1511f072cb746c6a0406a9d76e8483f3bf764786d119a35ac1b2c1f3c947869
+
+❯ docker ps -a
+CONTAINER ID   IMAGE     COMMAND                  CREATED       STATUS                      PORTS     NAMES
+790a1c52d364   nginx     "/docker-entrypoint.…"   6 hours ago   Exited (0) 24 minutes ago             portfolio
+
+❯ docker volume ls
+DRIVER    VOLUME NAME
+
+❯ docker rm 790a1c52d364
+
+790a1c52d364
+
+❯ docker volume ls
+DRIVER    VOLUME NAME
+
+❯ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
