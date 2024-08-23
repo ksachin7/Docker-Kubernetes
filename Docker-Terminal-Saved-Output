@@ -1011,4 +1011,242 @@ a0e9c859f5a0   nginx     "/docker-entrypoint.…"   2 hours ago   Up 2 hours   0
   - 80/tcp:8080
 
 + Status: running
+
+
+❯ docker run --name portfolio1 -v /Users/sachin/Desktop/Lab/Docker-Kubernetes/websites/Personal:/usr/share/nginx/html:ro -d -p 8080:80 nginx
+
+6858788f45763891d181aa75d1301d1042659255619ed921028463dfea792860
+
+❯ docker run --name portfolio2 -v /Users/sachin/Desktop/Lab/Docker-Kubernetes/websites/portfolio:/usr/share/nginx/html:ro -d -p 8081:80 nginx
+
+0ee022b6cf7b027f46828bd37e64cd4c6d9049b325d6ac9831a2a7d9248bf4a4
+
+❯ docker ps -a
+CONTAINER ID   IMAGE     COMMAND                  CREATED              STATUS              PORTS                  NAMES
+0ee022b6cf7b   nginx     "/docker-entrypoint.…"   2 seconds ago        Up 2 seconds        0.0.0.0:8081->80/tcp   portfolio2
+6858788f4576   nginx     "/docker-entrypoint.…"   About a minute ago   Up About a minute   0.0.0.0:8080->80/tcp   portfolio1
+
+❯ docker volume ls
+DRIVER    VOLUME NAME
+
+❯ docker exec -it container1 /bin/sh
+# Navigate to /shared_data and modify files
+
+Error response from daemon: No such container: container1
+
+❯ docker exec -it portfolio1 /bin/sh
+# Navigate to /shared_data and modify files
+
+# ls
+bin  boot  dev	docker-entrypoint.d  docker-entrypoint.sh  etc	home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+# ls -aG
+.   .dockerenv	boot  docker-entrypoint.d   etc   lib	 media	opt   root  sbin  sys  usr
+..  bin		dev   docker-entrypoint.sh  home  lib64  mnt	proc  run   srv   tmp  var
+# ^Z^C    
+# exit
+
+❯ docker exec -it portfolio1 bash
+# Navigate to /shared_data and modify files
+
+root@6858788f4576:/# ls
+bin  boot  dev	docker-entrypoint.d  docker-entrypoint.sh  etc	home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@6858788f4576:/# exit
+exit
+
+❯ docker exec -it portfolio2 /bin/sh
+# Navigate to /shared_data and modify files
+
+# ls
+bin  boot  dev	docker-entrypoint.d  docker-entrypoint.sh  etc	home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+# cd /shared_data
+/bin/sh: 2: cd: can't cd to /shared_data
+# 
+# cd /usr/share/nginx/html
+# ls
+assets	contact.html  css  index.html  js  projects.html  resume.html
+# touch about.html
+touch: cannot touch 'about.html': Read-only file system
+# exit
+
+❯ docker ps -a
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                  NAMES
+0ee022b6cf7b   nginx     "/docker-entrypoint.…"   20 minutes ago   Up 20 minutes   0.0.0.0:8081->80/tcp   portfolio2
+6858788f4576   nginx     "/docker-entrypoint.…"   21 minutes ago   Up 21 minutes   0.0.0.0:8080->80/tcp   portfolio1
+
+❯ docker volume ls
+DRIVER    VOLUME NAME
+
+❯ # Create a named volume (if you want to use a named volume)
+docker volume create my_shared_volume
+
+my_shared_volume
+
+❯ # Start the first container and mount the volume as read-only
+docker run --name container1 -v my_shared_volume:/shared_data:ro -d nginx
+
+# Start the second container and mount the same volume as read-only
+docker run --name container2 -v my_shared_volume:/shared_data:ro -d nginx
+
+d92982c9f6173f2480406a94430a58b00be2f45b6838f2d3ea168bacbd4dde29
+0009483b0f53b77ead684dcbcaf6709a8b4cbb7b6c0f9ff6b556c49faf182267
+
+❯ docker volume ls
+DRIVER    VOLUME NAME
+local     my_shared_volume
+
+❯ docker ps -a
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                  NAMES
+0009483b0f53   nginx     "/docker-entrypoint.…"   16 seconds ago   Up 15 seconds   80/tcp                 container2
+d92982c9f617   nginx     "/docker-entrypoint.…"   16 seconds ago   Up 16 seconds   80/tcp                 container1
+0ee022b6cf7b   nginx     "/docker-entrypoint.…"   27 minutes ago   Up 27 minutes   0.0.0.0:8081->80/tcp   portfolio2
+6858788f4576   nginx     "/docker-entrypoint.…"   28 minutes ago   Up 28 minutes   0.0.0.0:8080->80/tcp   portfolio1
+
+❯ docker exec -it container1 /bin/sh
+echo "Hello from container1" > /shared_data/testfile.txt
+
+# exit
+zsh: no such file or directory: /shared_data/testfile.txt
+
+❯ docker exec -it container2 /bin/sh
+cat /shared_data/testfile.txt
+
+❯ docker exec -it container1 /bin/sh
+
+# ls -l /shared_data
+total 0
+
+# exit
+
+❯ docker exec -it container1 bash
+ls -l /shared_data
+
+root@d92982c9f617:/# echo "Test data" > /host/data/testfile.txt
+root@d92982c9f617:/# docker exec -it container2 /bin/sh
+cat /shared_data/testfile.txt
+bash: docker: command not found
+cat: /shared_data/testfile.txt: No such file or directory
+root@d92982c9f617:/# exit
+exit
+ls: /shared_data: No such file or directory
+
+❯ docker exec -it container2 /bin/sh
+cat /shared_data/testfile.txt
+
+# exit
+cat: /shared_data/testfile.txt: No such file or directory
+
+❯ docker exec -it container2 bash
+cat /shared_data/testfile.txt
+
+root@0009483b0f53:/# cat /shared_data/testfile.txt
+cat: /shared_data/testfile.txt: No such file or directory
+root@0009483b0f53:/# exit 
+exit
+cat: /shared_data/testfile.txt: No such file or directory
+
+❯ docker ps -a
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                  NAMES
+0009483b0f53   nginx     "/docker-entrypoint.…"   16 minutes ago   Up 16 minutes   80/tcp                 container2
+d92982c9f617   nginx     "/docker-entrypoint.…"   16 minutes ago   Up 16 minutes   80/tcp                 container1
+0ee022b6cf7b   nginx     "/docker-entrypoint.…"   43 minutes ago   Up 43 minutes   0.0.0.0:8081->80/tcp   portfolio2
+6858788f4576   nginx     "/docker-entrypoint.…"   44 minutes ago   Up 44 minutes   0.0.0.0:8080->80/tcp   portfolio1
+
+❯ docker volume ls
+DRIVER    VOLUME NAME
+local     my_shared_volume
+
+❯ docker-prune-volumes
+Stopped: 0009483b0f53
+d92982c9f617
+0ee022b6cf7b
+6858788f4576
+
+Volumes before pruning
+---------------------
+DRIVER    VOLUME NAME
+local     my_shared_volume
+
+Total reclaimed space: 0B
+
+Volumes after pruning
+---------------------
+DRIVER    VOLUME NAME
+local     my_shared_volume
+
+❯ docker volume ls
+DRIVER    VOLUME NAME
+local     my_shared_volume
+
+❯ docker ps -a
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS                      PORTS     NAMES
+0009483b0f53   nginx     "/docker-entrypoint.…"   16 minutes ago   Exited (0) 32 seconds ago             container2
+d92982c9f617   nginx     "/docker-entrypoint.…"   16 minutes ago   Exited (0) 32 seconds ago             container1
+0ee022b6cf7b   nginx     "/docker-entrypoint.…"   43 minutes ago   Exited (0) 32 seconds ago             portfolio2
+6858788f4576   nginx     "/docker-entrypoint.…"   44 minutes ago   Exited (0) 32 seconds ago             portfolio1
+
+❯ docker-prune-volumes
+No running containers to stop.
+
+Volumes before pruning
+---------------------
+DRIVER    VOLUME NAME
+local     my_shared_volume
+
+Total reclaimed space: 0B
+
+Volumes after pruning
+---------------------
+DRIVER    VOLUME NAME
+local     my_shared_volume
+
+❯ docker ps -a
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS                     PORTS     NAMES
+0009483b0f53   nginx     "/docker-entrypoint.…"   19 minutes ago   Exited (0) 3 minutes ago             container2
+d92982c9f617   nginx     "/docker-entrypoint.…"   19 minutes ago   Exited (0) 3 minutes ago             container1
+0ee022b6cf7b   nginx     "/docker-entrypoint.…"   46 minutes ago   Exited (0) 3 minutes ago             portfolio2
+6858788f4576   nginx     "/docker-entrypoint.…"   47 minutes ago   Exited (0) 3 minutes ago             portfolio1
+
+❯ docker-prune-volumes
+No running containers to stop.
+0009483b0f53
+d92982c9f617
+0ee022b6cf7b
+6858788f4576
+
+Volumes before pruning
+---------------------
+DRIVER    VOLUME NAME
+local     my_shared_volume
+
+Total reclaimed space: 0B
+
+Volumes after pruning
+---------------------
+DRIVER    VOLUME NAME
+local     my_shared_volume
+
+❯ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+❯ docker-prune-volumes
+Starting cleanup process...
+No running containers to stop.
+
+Removing all containers...
+No containers to remove.
+
+Volumes before pruning
+---------------------
+DRIVER    VOLUME NAME
+
+Pruning all unused volumes...
+Total reclaimed space: 0B
+
+Attempting to remove specific volumes...
+No volumes to remove.
+
+Volumes after pruning
+---------------------
+DRIVER    VOLUME NAME
 ❯ 
+
