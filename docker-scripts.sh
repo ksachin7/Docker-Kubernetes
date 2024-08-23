@@ -50,9 +50,9 @@ function containers_using_volume() {
   done
 }
 
-# Remove all unused volumes
+# Function to remove all unused Docker volumes and handle containers
 function prune_all_volumes() {
-  # echo "Stopping Containers & Removing all Docker volumes..."
+  echo "Starting cleanup process..."
 
   # List of all running container IDs
   running_containers=$(docker ps -q)
@@ -60,24 +60,50 @@ function prune_all_volumes() {
   # Check if there are any running containers
   if [ -n "$running_containers" ]; then
     # Stop all running containers and capture the output (container IDs)
+    echo "Stopping running containers..."
     stopped_containers=$(docker stop $running_containers)
-    echo "Stopped: $stopped_containers"
+    echo "Stopped containers: $stopped_containers"
   else
     echo "No running containers to stop."
   fi
 
   echo ""
+
+  # Remove all containers (both stopped and running)
+  echo "Removing all containers..."
+  all_containers=$(docker ps -a -q)
+  if [ -n "$all_containers" ]; then
+    removed_containers=$(docker rm $all_containers)
+    echo "Removed containers: $removed_containers"
+  else
+    echo "No containers to remove."
+  fi
+
   # List volumes before pruning
+  echo ""
   echo "Volumes before pruning"
   echo "---------------------"
   docker volume ls
 
-  echo ""
   # Prune all unused volumes
+  echo ""
+  echo "Pruning all unused volumes..."
   docker volume prune -f
 
+  # Attempt to remove specific volumes if they are still present
   echo ""
+  echo "Attempting to remove specific volumes..."
+  volumes_to_remove=$(docker volume ls -q)
+  if [ -n "$volumes_to_remove" ]; then
+    for volume in $volumes_to_remove; do
+      docker volume rm $volume
+    done
+  else
+    echo "No volumes to remove."
+  fi
+
   # List volumes after pruning
+  echo ""
   echo "Volumes after pruning"
   echo "---------------------"
   docker volume ls
