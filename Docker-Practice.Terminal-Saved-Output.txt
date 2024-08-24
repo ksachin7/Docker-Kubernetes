@@ -1248,5 +1248,279 @@ No volumes to remove.
 Volumes after pruning
 ---------------------
 DRIVER    VOLUME NAME
-❯ 
+
+❯ Last login: Sat Aug 24 00:44:53 on ttys001
+
+❯ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+❯ docker volume ls
+DRIVER    VOLUME NAME
+
+❯ docker images
+REPOSITORY   TAG       IMAGE ID       CREATED      SIZE
+nginx        latest    5ef79149e0ec   9 days ago   188MB
+
+❯ docker image ls
+REPOSITORY   TAG       IMAGE ID       CREATED      SIZE
+nginx        latest    5ef79149e0ec   9 days ago   188MB
+
+❯ docker run --name portfolio-container -v $(~/Desktop/Lab/Docker-Kubernetes/websites/personal):/usr/share/nginx/html -d -p 8080:80 nginx:latest
+docker: invalid spec: :/usr/share/nginx/html: empty section between colons.
+See 'docker run --help'.
+
+❯ docker run --name portfolio-container -v ~/Desktop/Lab/Docker-Kubernetes/websites/personal:/usr/share/nginx/html -d -p 8080:80 nginx:latest
+a0fda1f17a73936bc5124aab3f641a00414f7c1a5340ab64ae0221515bfd0301
+
+❯ dpcker ps -a
+zsh: correct 'dpcker' to 'docker' [nyae]? zsh: command not found: dpcker
+
+❯ docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                  NAMES
+a0fda1f17a73   nginx:latest   "/docker-entrypoint.…"   22 seconds ago   Up 21 seconds   0.0.0.0:8080->80/tcp   portfolio-container
+
+❯ docker volume ls
+DRIVER    VOLUME NAME
+
+❯ # docker image
+
+❯ docker images
+REPOSITORY                      TAG       IMAGE ID       CREATED       SIZE
+docker/labs-ai-tools-for-devs   0.0.7     c5b7b7dbe45e   7 days ago    13.6MB
+nginx                           latest    5ef79149e0ec   9 days ago    188MB
+docker/labs-vscode-installer    0.0.3     b5e14f161d00   10 days ago   30.4MB
+
+❯ # creating a dockerfile
+
+❯ cd ~/Desktop/Lab/Docker-Kubernetes/websites/personal
+
+❯ docker build --tag website:latest .
+[+] Building 1.5s (7/7) FINISHED                                                                                                         docker:desktop-linux
+ => [internal] load build definition from dockerfile                                                                                                     0.1s
+ => => transferring dockerfile: 83B                                                                                                                      0.0s
+ => [internal] load metadata for docker.io/library/nginx:latest                                                                                          0.0s
+ => [internal] load .dockerignore                                                                                                                        0.1s
+ => => transferring context: 2B                                                                                                                          0.0s
+ => [internal] load build context                                                                                                                        0.6s
+ => => transferring context: 11.56MB                                                                                                                     0.5s
+ => [1/2] FROM docker.io/library/nginx:latest                                                                                                            0.6s
+ => [2/2] ADD . /usr/share/nginx/html                                                                                                                    0.3s
+ => exporting to image                                                                                                                                   0.3s
+ => => exporting layers                                                                                                                                  0.2s
+ => => writing image sha256:11d7a38ce5b47f26dd612d140c452b79bcfa4d95964677c4c4f063d503e378cd                                                             0.0s
+ => => naming to docker.io/library/website:latest                                                                                                        0.0s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/p1ffmpzr0nsayneg0phmw61od
+
+❯ docker images
+REPOSITORY                      TAG       IMAGE ID       CREATED         SIZE
+website                         latest    11d7a38ce5b4   2 minutes ago   199MB
+docker/labs-ai-tools-for-devs   0.0.7     c5b7b7dbe45e   7 days ago      13.6MB
+nginx                           latest    5ef79149e0ec   9 days ago      188MB
+docker/labs-vscode-installer    0.0.3     b5e14f161d00   10 days ago     30.4MB
+
+❯ docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                  NAMES
+a0fda1f17a73   nginx:latest   "/docker-entrypoint.…"   12 minutes ago   Up 12 minutes   0.0.0.0:8080->80/tcp   portfolio-container
+
+❯ docker stop a0fda1f17a73
+a0fda1f17a73
+
+❯ docker container prune
+WARNING! This will remove all stopped containers.
+Are you sure you want to continue? [y/N] y
+Deleted Containers:
+a0fda1f17a73936bc5124aab3f641a00414f7c1a5340ab64ae0221515bfd0301
+
+Total reclaimed space: 1.093kB
+
+❯ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+❯ docker images
+REPOSITORY                      TAG       IMAGE ID       CREATED         SIZE
+website                         latest    11d7a38ce5b4   4 minutes ago   199MB
+docker/labs-ai-tools-for-devs   0.0.7     c5b7b7dbe45e   7 days ago      13.6MB
+nginx                           latest    5ef79149e0ec   9 days ago      188MB
+docker/labs-vscode-installer    0.0.3     b5e14f161d00   10 days ago     30.4MB
+
+❯ docker run --name portfolio-container -d -p 8080:80 website:latest
+a990a746dbb7bb8e61deebbd7171eed97a82e68b801e5fa1b4b76fd420b5a632
+
+❯ docker ps -a
+CONTAINER ID   IMAGE            COMMAND                  CREATED         STATUS         PORTS                  NAMES
+a990a746dbb7   website:latest   "/docker-entrypoint.…"   6 seconds ago   Up 5 seconds   0.0.0.0:8080->80/tcp   portfolio-container
+
+❯ docker pull node:lts-alpine
+lts-alpine: Pulling from library/node
+c6a83fedfae6: Already exists 
+731f5f878c76: Pull complete 
+17ea4cb95273: Pull complete 
+2ba186860f73: Pull complete 
+Digest: sha256:1a526b97cace6b4006256570efa1a29cd1fe4b96a5301f8d48e87c5139438a45
+Status: Downloaded newer image for node:lts-alpine
+docker.io/library/node:lts-alpine
+
+❯ docker pull nginx-latest-alpine
+Using default tag: latest
+Error response from daemon: pull access denied for nginx-latest-alpine, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+
+❯ docker pull nginx:latest-alpine
+Error response from daemon: manifest for nginx:latest-alpine not found: manifest unknown: manifest unknown
+
+❯ docker pull nginx-alpine
+Using default tag: latest
+Error response from daemon: pull access denied for nginx-alpine, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+
+❯ docker pull nginx:alpine
+alpine: Pulling from library/nginx
+c6a83fedfae6: Already exists 
+7f5898476db7: Pull complete 
+45f552c78c31: Pull complete 
+62a896bb4a21: Pull complete 
+532b9a30583c: Pull complete 
+41c49cbde6a6: Pull complete 
+9da224fdd412: Pull complete 
+35b039ba2bc5: Pull complete 
+Digest: sha256:c04c18adc2a407740a397c8407c011fc6c90026a9b65cceddef7ae5484360158
+Status: Downloaded newer image for nginx:alpine
+docker.io/library/nginx:alpine
+
+❯ docker images
+REPOSITORY                      TAG          IMAGE ID       CREATED          SIZE
+website                         latest       11d7a38ce5b4   24 minutes ago   199MB
+node                            lts-alpine   d58137ded569   2 days ago       133MB
+docker/labs-ai-tools-for-devs   0.0.7        c5b7b7dbe45e   7 days ago       13.6MB
+nginx                           alpine       0f0eda053dc5   9 days ago       43.3MB
+nginx                           latest       5ef79149e0ec   9 days ago       188MB
+docker/labs-vscode-installer    0.0.3        b5e14f161d00   10 days ago      30.4MB
+
+❯ docker rmi nginx:latest
+
+Untagged: nginx:latest
+Untagged: nginx@sha256:447a8665cc1dab95b1ca778e162215839ccbb9189104c79d7ec3a81e14577add
+Deleted: sha256:5ef79149e0ec84a7a9f9284c3f91aa3c20608f8391f5445eabe92ef07dbda03c
+
+❯ docker images
+REPOSITORY                      TAG          IMAGE ID       CREATED          SIZE
+website                         latest       11d7a38ce5b4   27 minutes ago   199MB
+node                            lts-alpine   d58137ded569   2 days ago       133MB
+docker/labs-ai-tools-for-devs   0.0.7        c5b7b7dbe45e   7 days ago       13.6MB
+nginx                           alpine       0f0eda053dc5   9 days ago       43.3MB
+docker/labs-vscode-installer    0.0.3        b5e14f161d00   10 days ago      30.4MB
+
+❯ docker build --tag website:latest .
+[+] Building 13.5s (7/7) FINISHED                                                                                                        docker:desktop-linux
+ => [internal] load build definition from dockerfile                                                                                                     0.0s
+ => => transferring dockerfile: 90B                                                                                                                      0.0s
+ => [internal] load metadata for docker.io/library/nginx:1.17.2-alpine                                                                                   5.5s
+ => [internal] load .dockerignore                                                                                                                        0.1s
+ => => transferring context: 2B                                                                                                                          0.0s
+ => [internal] load build context                                                                                                                        0.1s
+ => => transferring context: 14.68kB                                                                                                                     0.0s
+ => [1/2] FROM docker.io/library/nginx:1.17.2-alpine@sha256:482ead44b2203fa32b3390abdaf97cbdc8ad15c07fb03a3e68d7c35a19ad7595                             7.1s
+ => => resolve docker.io/library/nginx:1.17.2-alpine@sha256:482ead44b2203fa32b3390abdaf97cbdc8ad15c07fb03a3e68d7c35a19ad7595                             0.1s
+ => => sha256:482ead44b2203fa32b3390abdaf97cbdc8ad15c07fb03a3e68d7c35a19ad7595 1.41kB / 1.41kB                                                           0.0s
+ => => sha256:5d1044294f0347e320d549e0add523dd3265580e9093458d92cf558db5ad62e5 739B / 739B                                                               0.0s
+ => => sha256:55ceb2abad47854d182034514057b038a6e50e9d029ba152bd713d535ed39603 7.21kB / 7.21kB                                                           0.0s
+ => => sha256:0503825856099e6adb39c8297af09547f69684b7016b7f3680ed801aa310baaa 2.79MB / 2.79MB                                                           3.1s
+ => => sha256:aa1504bc12acb3c173f01891dfd1917c98eba221e40d54d02c39f565729344b5 5.86MB / 5.86MB                                                           1.5s
+ => => extracting sha256:0503825856099e6adb39c8297af09547f69684b7016b7f3680ed801aa310baaa                                                                0.2s
+ => => extracting sha256:aa1504bc12acb3c173f01891dfd1917c98eba221e40d54d02c39f565729344b5                                                                3.0s
+ => [2/2] ADD . /usr/share/nginx/html                                                                                                                    0.2s
+ => exporting to image                                                                                                                                   0.3s
+ => => exporting layers                                                                                                                                  0.2s
+ => => writing image sha256:ffcb69f2feafcfb256a41aac51231ca51439c2d8e1f9945ca5a3e919e5c4a8fc                                                             0.0s
+ => => naming to docker.io/library/website:latest                                                                                                        0.0s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/yy6q7rh2j98rqxwbpx926uh4k
+
+❯ docker images
+REPOSITORY                      TAG          IMAGE ID       CREATED          SIZE
+website                         latest       ffcb69f2feaf   14 seconds ago   32.7MB
+<none>                          <none>       11d7a38ce5b4   39 minutes ago   199MB
+node                            lts-alpine   d58137ded569   2 days ago       133MB
+docker/labs-ai-tools-for-devs   0.0.7        c5b7b7dbe45e   7 days ago       13.6MB
+nginx                           alpine       0f0eda053dc5   9 days ago       43.3MB
+docker/labs-vscode-installer    0.0.3        b5e14f161d00   10 days ago      30.4MB
+
+❯ docker system prune
+
+WARNING! This will remove:
+  - all stopped containers
+  - all networks not used by at least one container
+  - all dangling images
+  - unused build cache
+
+Are you sure you want to continue? [y/N] y
+Deleted build cache objects:
+7sogw0tfrzjo9ctn0chstysql
+qw7b85draznsth2g1t3gwr44y
+wy8bwskx3l9lg26rr6tfycioo
+
+Total reclaimed space: 11.54MB
+
+❯ docker images
+REPOSITORY                      TAG          IMAGE ID       CREATED              SIZE
+website                         latest       ffcb69f2feaf   About a minute ago   32.7MB
+<none>                          <none>       11d7a38ce5b4   40 minutes ago       199MB
+node                            lts-alpine   d58137ded569   2 days ago           133MB
+docker/labs-ai-tools-for-devs   0.0.7        c5b7b7dbe45e   7 days ago           13.6MB
+nginx                           alpine       0f0eda053dc5   9 days ago           43.3MB
+docker/labs-vscode-installer    0.0.3        b5e14f161d00   10 days ago          30.4MB
+
+❯ docker rmi 11d7a38ce5b4
+
+Error response from daemon: conflict: unable to delete 11d7a38ce5b4 (cannot be forced) - image is being used by running container a990a746dbb7
+
+❯ docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                  NAMES
+a990a746dbb7   11d7a38ce5b4   "/docker-entrypoint.…"   36 minutes ago   Up 36 minutes   0.0.0.0:8080->80/tcp   portfolio-container
+
+❯ docker stop a990a746dbb7
+a990a746dbb7
+
+❯ docker system prune
+
+WARNING! This will remove:
+  - all stopped containers
+  - all networks not used by at least one container
+  - all dangling images
+  - unused build cache
+
+Are you sure you want to continue? [y/N] y
+Deleted Containers:
+a990a746dbb7bb8e61deebbd7171eed97a82e68b801e5fa1b4b76fd420b5a632
+
+Deleted Images:
+deleted: sha256:11d7a38ce5b47f26dd612d140c452b79bcfa4d95964677c4c4f063d503e378cd
+
+Deleted build cache objects:
+adcphgnaone84ohd7jqk6p0q8
+uwvlilk9fsjj4h6dw3ks9uutm
+tekb5waqws5tn3kjaqteeabqd
+qac1f6zarv6xwmfqx2yhdlbms
+y2s8gsgbu9fbokgg67l4veagb
+r4931j84dt5ubm8bztdabe08y
+t4mq2wd8jo4dmp5zvqljmyc7i
+7diqu82o7oat3xrjfuetuqq0p
+
+Total reclaimed space: 11.54MB
+
+❯ docker images
+REPOSITORY                      TAG          IMAGE ID       CREATED         SIZE
+website                         latest       ffcb69f2feaf   3 minutes ago   32.7MB
+node                            lts-alpine   d58137ded569   2 days ago      133MB
+docker/labs-ai-tools-for-devs   0.0.7        c5b7b7dbe45e   7 days ago      13.6MB
+nginx                           alpine       0f0eda053dc5   9 days ago      43.3MB
+docker/labs-vscode-installer    0.0.3        b5e14f161d00   10 days ago     30.4MB
+
+❯ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+❯ docker volume ls
+DRIVER    VOLUME NAME
+
+ 
+
 
