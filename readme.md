@@ -4,7 +4,11 @@ Welcome to the Docker and Kubernetes Practice Repository!
 
 ## Introduction
 
-Docker is a powerful tool for containerization that simplifies the deployment and management of applications.
+**Docker**: Docker is a powerful tool for containerization that simplifies the deployment and management of applications.
+
+- **Containerization Platform**: Docker allows you to package an application along with its dependencies into a standardized unit called a container. This container can then be run on any system that has Docker installed, regardless of the underlying OS.
+- **Consistency**: Docker ensures that the software will always run the same, regardless of where it's deployed, reducing the "it works on my machine" problem.
+- **Efficiency**: Containers share the host system's kernel, making them more lightweight than virtual machines (VMs), which require full OS installations.
 
 **Here's a table of Docker commands used**
 
@@ -50,4 +54,4 @@ These are custom commands defined in a script and are not actual Docker commands
 | `docker-details`                     | Lists all containers with detailed information (ID, Names, Image, Ports, Status). |
 | `docker-detailed-vol-usage`          | Lists all containers using a specific volume with detailed information (ID, Name, Image, Mounts, Ports, Status). |
 
-Kubernetes, often abbreviated as K8s, is an open-source container orchestration platform that automates the deployment, scaling, and management of containerized applications.
+**Kubernetes**: Kubernetes, often abbreviated as K8s, is an open-source container orchestration platform that automates the deployment, scaling, and management of containerized applications.
