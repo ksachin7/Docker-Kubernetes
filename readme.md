@@ -10,6 +10,10 @@ Welcome to the Docker and Kubernetes Practice Repository!
 - **Consistency**: Docker ensures that the software will always run the same, regardless of where it's deployed, reducing the "it works on my machine" problem.
 - **Efficiency**: Containers share the host system's kernel, making them more lightweight than virtual machines (VMs), which require full OS installations.
 
+**Important:** Dockerized a full stack (React, Spring Boot, and MySQL) project. **See the Dockerized project: [ExpenseWise](https://github.com/ksachin7/ExpenseWise)**
+
+See the [Terminal saved output](./docker_deploy.txt) of dockerizing the project and issue faced.
+
 **Here's a table of Docker commands used**
 
 | **Command**                                            | **Description**                                                                                     |
