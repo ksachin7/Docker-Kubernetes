@@ -1,0 +1,731 @@
+
+❯ kubectl get node
+NAME       STATUS   ROLES           AGE     VERSION
+minikube   Ready    control-plane   3h25m   v1.31.0
+
+❯ kubectl get pod
+No resources found in default namespace.
+
+❯ kubectl apply -f mysql-config.yml
+error: the path "mysql-config.yml" does not exist
+
+❯ kubectl apply -f backend/mysql-config.yml
+configmap/mysql-config created
+
+❯ kubectl apply -f backend/mysql-secrets.yml
+secret/mysql-secret created
+
+❯ kubectl apply -f backend/mysql-deployment.yml
+service/mysql created
+deployment.apps/mysql created
+
+❯ kubectl apply -f backend/ExpenseWise.yml
+Error from server (BadRequest): error when creating "backend/ExpenseWise.yml": Service in version "v1" cannot be handled as a Service: strict decoding error: unknown field "spec.ports[0].NodePort"
+Error from server (Invalid): error when creating "backend/ExpenseWise.yml": Deployment.apps "ExpenseWise" is invalid: metadata.name: Invalid value: "ExpenseWise": a lowercase RFC 1123 subdomain must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com', regex used for validation is '[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*')
+
+❯ kubectl apply -f backend/ExpenseWise.yml
+deployment.apps/expensewise created
+The Service "expensewise" is invalid: spec.ports[0].nodePort: Invalid value: 8000: provided port is not in the valid range. The range of valid ports is 30000-32767
+
+❯ kubectl apply -f backend/ExpenseWise.yml
+service/expensewise created
+deployment.apps/expensewise unchanged
+
+❯ kubectl get all
+NAME                              READY   STATUS    RESTARTS   AGE
+pod/expensewise-c6664f65d-cvt47   0/1     Pending   0          3m38s
+pod/mysql-54c7f58c7-wbb84         0/1     Pending   0          10m
+
+NAME                  TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+service/expensewise   NodePort    10.99.251.13   <none>        8080:30007/TCP   2m55s
+service/kubernetes    ClusterIP   10.96.0.1      <none>        443/TCP          3h38m
+service/mysql         ClusterIP   None           <none>        3306/TCP         10m
+
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/expensewise   0/1     1            0           3m38s
+deployment.apps/mysql         0/1     1            0           10m
+
+NAME                                    DESIRED   CURRENT   READY   AGE
+replicaset.apps/expensewise-c6664f65d   1         1         0       3m38s
+replicaset.apps/mysql-54c7f58c7         1         1         0       10m
+
+❯ kubectl configmap
+error: unknown command "configmap" for "kubectl"
+
+❯ kubectl get configmap
+NAME               DATA   AGE
+kube-root-ca.crt   1      3h42m
+mysql-config       1      15m
+
+❯ kubectl get secret
+NAME           TYPE     DATA   AGE
+mysql-secret   Opaque   2      15m
+
+❯ kubectl get pod
+NAME                          READY   STATUS    RESTARTS   AGE
+expensewise-c6664f65d-cvt47   0/1     Pending   0          7m57s
+mysql-54c7f58c7-wbb84         0/1     Pending   0          15m
+
+❯ kubectl describe service expensewise
+Name:                     expensewise
+Namespace:                default
+Labels:                   <none>
+Annotations:              <none>
+Selector:                 app=expensewise
+Type:                     NodePort
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       10.99.251.13
+IPs:                      10.99.251.13
+Port:                     <unset>  8080/TCP
+TargetPort:               8080/TCP
+NodePort:                 <unset>  30007/TCP
+Endpoints:                
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Internal Traffic Policy:  Cluster
+Events:                   <none>
+
+❯ kubectl describe pod expensewise-c6664f65d-cvt47
+Name:             expensewise-c6664f65d-cvt47
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             <none>
+Labels:           app=expensewise
+                  pod-template-hash=c6664f65d
+Annotations:      <none>
+Status:           Pending
+IP:               
+IPs:              <none>
+Controlled By:    ReplicaSet/expensewise-c6664f65d
+Containers:
+  expensewise-app:
+    Image:      expensewise-backend:latest
+    Port:       8080/TCP
+    Host Port:  0/TCP
+    Environment:
+      USER_NAME:      <set to the key 'mysql_user' in secret 'mysql-secret'>      Optional: false
+      USER_PASSWORD:  <set to the key 'mysql_password' in secret 'mysql-secret'>  Optional: false
+      DB_URL:         <set to the key 'mysql' of config map 'mysql-config'>       Optional: false
+    Mounts:
+      /app/data from app-persistent-storage (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-v8sbm (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  app-persistent-storage:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  expensewise-pv-claim
+    ReadOnly:   false
+  kube-api-access-v8sbm:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age                From               Message
+  ----     ------            ----               ----               -------
+  Warning  FailedScheduling  84s (x3 over 11m)  default-scheduler  0/1 nodes are available: persistentvolumeclaim "expensewise-pv-claim" not found. preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.
+
+❯ kubectl logs expensewise-c6664f65d-cvt47
+
+❯ kubectl logs expensewise-c6664f65d-cvt47 -f
+
+❯ kubectl get svc
+NAME          TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+expensewise   NodePort    10.99.251.13   <none>        8080:30007/TCP   13m
+kubernetes    ClusterIP   10.96.0.1      <none>        443/TCP          3h48m
+mysql         ClusterIP   None           <none>        3306/TCP         20m
+
+❯ kubectl get node
+NAME       STATUS   ROLES           AGE     VERSION
+minikube   Ready    control-plane   3h49m   v1.31.0
+
+❯ minikube ip
+192.168.49.2
+
+❯ kubectl get node -o wide
+NAME       STATUS   ROLES           AGE     VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION    CONTAINER-RUNTIME
+minikube   Ready    control-plane   3h50m   v1.31.0   192.168.49.2   <none>        Ubuntu 22.04.4 LTS   6.10.0-linuxkit   docker://27.2.0
+
+❯ kubectl get all
+NAME                              READY   STATUS    RESTARTS   AGE
+pod/expensewise-c6664f65d-cvt47   0/1     Pending   0          26m
+pod/mysql-54c7f58c7-wbb84         0/1     Pending   0          33m
+
+NAME                  TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+service/expensewise   NodePort    10.99.251.13   <none>        8080:30007/TCP   25m
+service/kubernetes    ClusterIP   10.96.0.1      <none>        443/TCP          4h
+service/mysql         ClusterIP   None           <none>        3306/TCP         33m
+
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/expensewise   0/1     1            0           26m
+deployment.apps/mysql         0/1     1            0           33m
+
+NAME                                    DESIRED   CURRENT   READY   AGE
+replicaset.apps/expensewise-c6664f65d   1         1         0       26m
+replicaset.apps/mysql-54c7f58c7         1         1         0       33m
+
+❯ kubectl apply -f backend/ExpenseWise.yml
+service/expensewise unchanged
+deployment.apps/expensewise configured
+
+❯ kubectl get all
+NAME                               READY   STATUS    RESTARTS   AGE
+pod/expensewise-7d5fdf7b79-6jknz   0/1     Pending   0          12s
+pod/mysql-54c7f58c7-wbb84          0/1     Pending   0          40m
+
+NAME                  TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+service/expensewise   NodePort    10.99.251.13   <none>        8080:30007/TCP   32m
+service/kubernetes    ClusterIP   10.96.0.1      <none>        443/TCP          4h8m
+service/mysql         ClusterIP   None           <none>        3306/TCP         40m
+
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/expensewise   0/1     1            0           33m
+deployment.apps/mysql         0/1     1            0           40m
+
+NAME                                     DESIRED   CURRENT   READY   AGE
+replicaset.apps/expensewise-7d5fdf7b79   1         1         0       12s
+replicaset.apps/expensewise-c6664f65d    0         0         0       33m
+replicaset.apps/mysql-54c7f58c7          1         1         0       40m
+
+❯ kubectl get pvc
+kubectl get pv
+
+No resources found in default namespace.
+No resources found
+
+❯ kubectl get resourcequotas
+
+No resources found in default namespace.
+
+❯ kubectl describe pod expensewise-7d5fdf7b79-6jknz
+kubectl describe pod mysql-54c7f58c7-wbb84
+
+Name:             expensewise-7d5fdf7b79-6jknz
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             <none>
+Labels:           app=expensewise
+                  pod-template-hash=7d5fdf7b79
+Annotations:      <none>
+Status:           Pending
+IP:               
+IPs:              <none>
+Controlled By:    ReplicaSet/expensewise-7d5fdf7b79
+Containers:
+  expensewise-app:
+    Image:      expensewise-backend:latest
+    Port:       8080/TCP
+    Host Port:  0/TCP
+    Limits:
+      cpu:     500m
+      memory:  128Mi
+    Requests:
+      cpu:     250m
+      memory:  64Mi
+    Environment:
+      USER_NAME:      <set to the key 'mysql_user' in secret 'mysql-secret'>      Optional: false
+      USER_PASSWORD:  <set to the key 'mysql_password' in secret 'mysql-secret'>  Optional: false
+      DB_URL:         <set to the key 'mysql' of config map 'mysql-config'>       Optional: false
+    Mounts:
+      /app/data from app-persistent-storage (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-dmwlk (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  app-persistent-storage:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  expensewise-pv-claim
+    ReadOnly:   false
+  kube-api-access-dmwlk:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age    From               Message
+  ----     ------            ----   ----               -------
+  Warning  FailedScheduling  2m14s  default-scheduler  0/1 nodes are available: persistentvolumeclaim "expensewise-pv-claim" not found. preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.
+Name:             mysql-54c7f58c7-wbb84
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             <none>
+Labels:           app=mysql
+                  pod-template-hash=54c7f58c7
+Annotations:      <none>
+Status:           Pending
+IP:               
+IPs:              <none>
+Controlled By:    ReplicaSet/mysql-54c7f58c7
+Containers:
+  mysqldb:
+    Image:      mysql:8
+    Port:       3306/TCP
+    Host Port:  0/TCP
+    Environment:
+      MYSQL_ROOT_USER:      <set to the key 'mysql_user' in secret 'mysql-secret'>      Optional: false
+      MYSQL_ROOT_PASSWORD:  <set to the key 'mysql_password' in secret 'mysql-secret'>  Optional: false
+    Mounts:
+      /var/lib/mysql from mysql-persistent-storage (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-4xwp4 (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  mysql-persistent-storage:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  mysql-pv-claim
+    ReadOnly:   false
+  kube-api-access-4xwp4:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age                 From               Message
+  ----     ------            ----                ----               -------
+  Warning  FailedScheduling  2m8s (x9 over 42m)  default-scheduler  0/1 nodes are available: persistentvolumeclaim "mysql-pv-claim" not found. preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.
+
+❯ kubectl describe nodes
+
+Name:               minikube
+Roles:              control-plane
+Labels:             beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/os=linux
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=minikube
+                    kubernetes.io/os=linux
+                    minikube.k8s.io/commit=210b148df93a80eb872ecbeb7e35281b3c582c61
+                    minikube.k8s.io/name=minikube
+                    minikube.k8s.io/primary=true
+                    minikube.k8s.io/updated_at=2024_09_11T15_55_50_0700
+                    minikube.k8s.io/version=v1.34.0
+                    node-role.kubernetes.io/control-plane=
+                    node.kubernetes.io/exclude-from-external-load-balancers=
+Annotations:        kubeadm.alpha.kubernetes.io/cri-socket: unix:///var/run/cri-dockerd.sock
+                    node.alpha.kubernetes.io/ttl: 0
+                    volumes.kubernetes.io/controller-managed-attach-detach: true
+CreationTimestamp:  Wed, 11 Sep 2024 15:55:46 +0530
+Taints:             <none>
+Unschedulable:      false
+Lease:
+  HolderIdentity:  minikube
+  AcquireTime:     <unset>
+  RenewTime:       Wed, 11 Sep 2024 20:06:10 +0530
+Conditions:
+  Type             Status  LastHeartbeatTime                 LastTransitionTime                Reason                       Message
+  ----             ------  -----------------                 ------------------                ------                       -------
+  MemoryPressure   False   Wed, 11 Sep 2024 20:03:41 +0530   Wed, 11 Sep 2024 15:55:42 +0530   KubeletHasSufficientMemory   kubelet has sufficient memory available
+  DiskPressure     False   Wed, 11 Sep 2024 20:03:41 +0530   Wed, 11 Sep 2024 15:55:42 +0530   KubeletHasNoDiskPressure     kubelet has no disk pressure
+  PIDPressure      False   Wed, 11 Sep 2024 20:03:41 +0530   Wed, 11 Sep 2024 15:55:42 +0530   KubeletHasSufficientPID      kubelet has sufficient PID available
+  Ready            True    Wed, 11 Sep 2024 20:03:41 +0530   Wed, 11 Sep 2024 15:55:46 +0530   KubeletReady                 kubelet is posting ready status
+Addresses:
+  InternalIP:  192.168.49.2
+  Hostname:    minikube
+Capacity:
+  cpu:                4
+  ephemeral-storage:  61202244Ki
+  hugepages-2Mi:      0
+  memory:             4008636Ki
+  pods:               110
+Allocatable:
+  cpu:                4
+  ephemeral-storage:  61202244Ki
+  hugepages-2Mi:      0
+  memory:             4008636Ki
+  pods:               110
+System Info:
+  Machine ID:                 1c0d28ceefd0401c85416814ad0c2243
+  System UUID:                1c0d28ceefd0401c85416814ad0c2243
+  Boot ID:                    2802f9cf-9507-4bbd-b15b-b8ede6322cbc
+  Kernel Version:             6.10.0-linuxkit
+  OS Image:                   Ubuntu 22.04.4 LTS
+  Operating System:           linux
+  Architecture:               amd64
+  Container Runtime Version:  docker://27.2.0
+  Kubelet Version:            v1.31.0
+  Kube-Proxy Version:         
+PodCIDR:                      10.244.0.0/24
+PodCIDRs:                     10.244.0.0/24
+Non-terminated Pods:          (9 in total)
+  Namespace                   Name                                         CPU Requests  CPU Limits  Memory Requests  Memory Limits  Age
+  ---------                   ----                                         ------------  ----------  ---------------  -------------  ---
+  kube-system                 coredns-6f6b679f8f-rfpsk                     100m (2%)     0 (0%)      70Mi (1%)        170Mi (4%)     4h10m
+  kube-system                 etcd-minikube                                100m (2%)     0 (0%)      100Mi (2%)       0 (0%)         4h10m
+  kube-system                 kube-apiserver-minikube                      250m (6%)     0 (0%)      0 (0%)           0 (0%)         4h10m
+  kube-system                 kube-controller-manager-minikube             200m (5%)     0 (0%)      0 (0%)           0 (0%)         4h10m
+  kube-system                 kube-proxy-d4tnr                             0 (0%)        0 (0%)      0 (0%)           0 (0%)         4h10m
+  kube-system                 kube-scheduler-minikube                      100m (2%)     0 (0%)      0 (0%)           0 (0%)         4h10m
+  kube-system                 storage-provisioner                          0 (0%)        0 (0%)      0 (0%)           0 (0%)         4h10m
+  kubernetes-dashboard        dashboard-metrics-scraper-c5db448b4-9nqtg    0 (0%)        0 (0%)      0 (0%)           0 (0%)         3h32m
+  kubernetes-dashboard        kubernetes-dashboard-695b96c756-kjj9t        0 (0%)        0 (0%)      0 (0%)           0 (0%)         3h32m
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests    Limits
+  --------           --------    ------
+  cpu                750m (18%)  0 (0%)
+  memory             170Mi (4%)  170Mi (4%)
+  ephemeral-storage  0 (0%)      0 (0%)
+  hugepages-2Mi      0 (0%)      0 (0%)
+Events:              <none>
+
+❯ kubectl apply -f pvc-expensewise.yaml
+kubectl apply -f pvc-mysql.yaml
+
+error: the path "pvc-expensewise.yaml" does not exist
+error: the path "pvc-mysql.yaml" does not exist
+
+❯ kubectl apply -f backend/pvc-expensewise.yaml
+kubectl apply -f backend/pvc-mysql.yaml
+
+persistentvolumeclaim/expensewise-pv-claim created
+persistentvolumeclaim/mysql-pv-claim created
+
+❯ kubectl get storageclass
+
+NAME                 PROVISIONER                RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+standard (default)   k8s.io/minikube-hostpath   Delete          Immediate           false                  4h13m
+
+❯ kubectl get pvc
+kubectl get pv
+
+NAME                   STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+expensewise-pv-claim   Bound    pvc-bdcffdb1-b081-481e-ba49-e6a6134c913a   1Gi        RWO            standard       <unset>                 46s
+mysql-pv-claim         Bound    pvc-aaedc4ec-bc09-4d4a-9f92-4a8e0ef74998   1Gi        RWO            standard       <unset>                 46s
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                          STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+pvc-aaedc4ec-bc09-4d4a-9f92-4a8e0ef74998   1Gi        RWO            Delete           Bound    default/mysql-pv-claim         standard       <unset>                          47s
+pvc-bdcffdb1-b081-481e-ba49-e6a6134c913a   1Gi        RWO            Delete           Bound    default/expensewise-pv-claim   standard       <unset>                          47s
+
+❯ kubectl get pods
+
+NAME                           READY   STATUS              RESTARTS   AGE
+expensewise-7d5fdf7b79-6jknz   0/1     ImagePullBackOff    0          6m11s
+mysql-54c7f58c7-wbb84          0/1     ContainerCreating   0          46m
+
+❯ kubectl get all
+NAME                               READY   STATUS              RESTARTS   AGE
+pod/expensewise-7d5fdf7b79-6jknz   0/1     ImagePullBackOff    0          6m31s
+pod/mysql-54c7f58c7-wbb84          0/1     ContainerCreating   0          46m
+
+NAME                  TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+service/expensewise   NodePort    10.99.251.13   <none>        8080:30007/TCP   38m
+service/kubernetes    ClusterIP   10.96.0.1      <none>        443/TCP          4h14m
+service/mysql         ClusterIP   None           <none>        3306/TCP         46m
+
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/expensewise   0/1     1            0           39m
+deployment.apps/mysql         0/1     1            0           46m
+
+NAME                                     DESIRED   CURRENT   READY   AGE
+replicaset.apps/expensewise-7d5fdf7b79   1         1         0       6m31s
+replicaset.apps/expensewise-c6664f65d    0         0         0       39m
+replicaset.apps/mysql-54c7f58c7          1         1         0       46m
+
+❯ kubectl apply -f backend/ExpenseWise.yml
+service/expensewise unchanged
+deployment.apps/expensewise configured
+
+❯ kubectl get all
+NAME                               READY   STATUS         RESTARTS   AGE
+pod/expensewise-7b7fdb777c-tgchl   0/1     ErrImagePull   0          11s
+pod/mysql-54c7f58c7-wbb84          1/1     Running        0          51m
+
+NAME                  TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+service/expensewise   NodePort    10.99.251.13   <none>        8080:30007/TCP   43m
+service/kubernetes    ClusterIP   10.96.0.1      <none>        443/TCP          4h19m
+service/mysql         ClusterIP   None           <none>        3306/TCP         51m
+
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/expensewise   0/1     1            0           44m
+deployment.apps/mysql         1/1     1            1           51m
+
+NAME                                     DESIRED   CURRENT   READY   AGE
+replicaset.apps/expensewise-7b7fdb777c   1         1         0       11s
+replicaset.apps/expensewise-7d5fdf7b79   0         0         0       11m
+replicaset.apps/expensewise-c6664f65d    0         0         0       44m
+replicaset.apps/mysql-54c7f58c7          1         1         1       51m
+
+❯ minikube addons enable registry
+
+💡  registry is an addon maintained by minikube. For any concerns contact minikube on GitHub.
+You can view the list of minikube maintainers at: https://github.com/kubernetes/minikube/blob/master/OWNERS
+╭──────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                      │
+│    Registry addon with docker driver uses port 50653 please use that instead of default port 5000    │
+│                                                                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────╯
+📘  For more information see: https://minikube.sigs.k8s.io/docs/drivers/docker
+    ▪ Using image docker.io/registry:2.8.3
+    ▪ Using image gcr.io/k8s-minikube/kube-registry-proxy:0.0.6
+🔎  Verifying registry addon...
+🌟  The 'registry' addon is enabled
+
+❯ docker tag expensewise-backend:latest 192.168.99.100:5000/expensewise-backend:latest
+
+
+❯ docker push 192.168.99.100:5000/expensewise-backend:latest
+
+The push refers to repository [192.168.99.100:5000/expensewise-backend]
+Get "https://192.168.99.100:5000/v2/": net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+
+❯ eval $(minikube docker-env)
+
+
+❯ kubectl apply -f backend/ExpenseWise.yml
+service/expensewise unchanged
+deployment.apps/expensewise configured
+
+❯ kubectl get all
+NAME                              READY   STATUS              RESTARTS   AGE
+pod/expensewise-c57955c6f-dzp7r   0/1     ContainerCreating   0          5s
+pod/mysql-54c7f58c7-wbb84         1/1     Running             0          56m
+
+NAME                  TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+service/expensewise   NodePort    10.99.251.13   <none>        8080:30007/TCP   48m
+service/kubernetes    ClusterIP   10.96.0.1      <none>        443/TCP          4h24m
+service/mysql         ClusterIP   None           <none>        3306/TCP         56m
+
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/expensewise   0/1     1            0           49m
+deployment.apps/mysql         1/1     1            1           56m
+
+NAME                                     DESIRED   CURRENT   READY   AGE
+replicaset.apps/expensewise-7b7fdb777c   0         0         0       4m57s
+replicaset.apps/expensewise-7d5fdf7b79   0         0         0       16m
+replicaset.apps/expensewise-c57955c6f    1         1         0       5s
+replicaset.apps/expensewise-c6664f65d    0         0         0       49m
+replicaset.apps/mysql-54c7f58c7          1         1         1       56m
+
+❯ kubectl describe pod expensewise-c57955c6f-dzp7r
+
+Name:             expensewise-c57955c6f-dzp7r
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Wed, 11 Sep 2024 20:20:02 +0530
+Labels:           app=expensewise
+                  pod-template-hash=c57955c6f
+Annotations:      <none>
+Status:           Pending
+IP:               10.244.0.10
+IPs:
+  IP:           10.244.0.10
+Controlled By:  ReplicaSet/expensewise-c57955c6f
+Containers:
+  expensewise-app:
+    Container ID:   
+    Image:          192.168.99.100:5000/expensewise-backend:latest
+    Image ID:       
+    Port:           8080/TCP
+    Host Port:      0/TCP
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     500m
+      memory:  128Mi
+    Requests:
+      cpu:     250m
+      memory:  64Mi
+    Environment:
+      USER_NAME:      <set to the key 'mysql_user' in secret 'mysql-secret'>      Optional: false
+      USER_PASSWORD:  <set to the key 'mysql_password' in secret 'mysql-secret'>  Optional: false
+      DB_URL:         <set to the key 'mysql' of config map 'mysql-config'>       Optional: false
+    Mounts:
+      /app/data from app-persistent-storage (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zl5cv (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  app-persistent-storage:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  expensewise-pv-claim
+    ReadOnly:   false
+  kube-api-access-zl5cv:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  40s                default-scheduler  Successfully assigned default/expensewise-c57955c6f-dzp7r to minikube
+  Warning  Failed     24s                kubelet            Failed to pull image "192.168.99.100:5000/expensewise-backend:latest": Error response from daemon: Get "https://192.168.99.100:5000/v2/": net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+  Warning  Failed     24s                kubelet            Error: ErrImagePull
+  Normal   BackOff    23s                kubelet            Back-off pulling image "192.168.99.100:5000/expensewise-backend:latest"
+  Warning  Failed     23s                kubelet            Error: ImagePullBackOff
+  Normal   Pulling    11s (x2 over 39s)  kubelet            Pulling image "192.168.99.100:5000/expensewise-backend:latest"
+
+❯ kubectl describe node minikube
+
+Name:               minikube
+Roles:              control-plane
+Labels:             beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/os=linux
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=minikube
+                    kubernetes.io/os=linux
+                    minikube.k8s.io/commit=210b148df93a80eb872ecbeb7e35281b3c582c61
+                    minikube.k8s.io/name=minikube
+                    minikube.k8s.io/primary=true
+                    minikube.k8s.io/updated_at=2024_09_11T15_55_50_0700
+                    minikube.k8s.io/version=v1.34.0
+                    node-role.kubernetes.io/control-plane=
+                    node.kubernetes.io/exclude-from-external-load-balancers=
+Annotations:        kubeadm.alpha.kubernetes.io/cri-socket: unix:///var/run/cri-dockerd.sock
+                    node.alpha.kubernetes.io/ttl: 0
+                    volumes.kubernetes.io/controller-managed-attach-detach: true
+CreationTimestamp:  Wed, 11 Sep 2024 15:55:46 +0530
+Taints:             <none>
+Unschedulable:      false
+Lease:
+  HolderIdentity:  minikube
+  AcquireTime:     <unset>
+  RenewTime:       Wed, 11 Sep 2024 20:21:13 +0530
+Conditions:
+  Type             Status  LastHeartbeatTime                 LastTransitionTime                Reason                       Message
+  ----             ------  -----------------                 ------------------                ------                       -------
+  MemoryPressure   False   Wed, 11 Sep 2024 20:16:37 +0530   Wed, 11 Sep 2024 15:55:42 +0530   KubeletHasSufficientMemory   kubelet has sufficient memory available
+  DiskPressure     False   Wed, 11 Sep 2024 20:16:37 +0530   Wed, 11 Sep 2024 15:55:42 +0530   KubeletHasNoDiskPressure     kubelet has no disk pressure
+  PIDPressure      False   Wed, 11 Sep 2024 20:16:37 +0530   Wed, 11 Sep 2024 15:55:42 +0530   KubeletHasSufficientPID      kubelet has sufficient PID available
+  Ready            True    Wed, 11 Sep 2024 20:16:37 +0530   Wed, 11 Sep 2024 15:55:46 +0530   KubeletReady                 kubelet is posting ready status
+Addresses:
+  InternalIP:  192.168.49.2
+  Hostname:    minikube
+Capacity:
+  cpu:                4
+  ephemeral-storage:  61202244Ki
+  hugepages-2Mi:      0
+  memory:             4008636Ki
+  pods:               110
+Allocatable:
+  cpu:                4
+  ephemeral-storage:  61202244Ki
+  hugepages-2Mi:      0
+  memory:             4008636Ki
+  pods:               110
+System Info:
+  Machine ID:                 1c0d28ceefd0401c85416814ad0c2243
+  System UUID:                1c0d28ceefd0401c85416814ad0c2243
+  Boot ID:                    2802f9cf-9507-4bbd-b15b-b8ede6322cbc
+  Kernel Version:             6.10.0-linuxkit
+  OS Image:                   Ubuntu 22.04.4 LTS
+  Operating System:           linux
+  Architecture:               amd64
+  Container Runtime Version:  docker://27.2.0
+  Kubelet Version:            v1.31.0
+  Kube-Proxy Version:         
+PodCIDR:                      10.244.0.0/24
+PodCIDRs:                     10.244.0.0/24
+Non-terminated Pods:          (13 in total)
+  Namespace                   Name                                         CPU Requests  CPU Limits  Memory Requests  Memory Limits  Age
+  ---------                   ----                                         ------------  ----------  ---------------  -------------  ---
+  default                     expensewise-c57955c6f-dzp7r                  250m (6%)     500m (12%)  64Mi (1%)        128Mi (3%)     75s
+  default                     mysql-54c7f58c7-wbb84                        0 (0%)        0 (0%)      0 (0%)           0 (0%)         57m
+  kube-system                 coredns-6f6b679f8f-rfpsk                     100m (2%)     0 (0%)      70Mi (1%)        170Mi (4%)     4h25m
+  kube-system                 etcd-minikube                                100m (2%)     0 (0%)      100Mi (2%)       0 (0%)         4h25m
+  kube-system                 kube-apiserver-minikube                      250m (6%)     0 (0%)      0 (0%)           0 (0%)         4h25m
+  kube-system                 kube-controller-manager-minikube             200m (5%)     0 (0%)      0 (0%)           0 (0%)         4h25m
+  kube-system                 kube-proxy-d4tnr                             0 (0%)        0 (0%)      0 (0%)           0 (0%)         4h25m
+  kube-system                 kube-scheduler-minikube                      100m (2%)     0 (0%)      0 (0%)           0 (0%)         4h25m
+  kube-system                 registry-66c9cd494c-z7rp4                    0 (0%)        0 (0%)      0 (0%)           0 (0%)         5m36s
+  kube-system                 registry-proxy-gkkp4                         0 (0%)        0 (0%)      0 (0%)           0 (0%)         5m35s
+  kube-system                 storage-provisioner                          0 (0%)        0 (0%)      0 (0%)           0 (0%)         4h25m
+  kubernetes-dashboard        dashboard-metrics-scraper-c5db448b4-9nqtg    0 (0%)        0 (0%)      0 (0%)           0 (0%)         3h47m
+  kubernetes-dashboard        kubernetes-dashboard-695b96c756-kjj9t        0 (0%)        0 (0%)      0 (0%)           0 (0%)         3h47m
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests    Limits
+  --------           --------    ------
+  cpu                1 (25%)     500m (12%)
+  memory             234Mi (5%)  298Mi (7%)
+  ephemeral-storage  0 (0%)      0 (0%)
+  hugepages-2Mi      0 (0%)      0 (0%)
+Events:              <none>
+
+❯ docker ps | grep registry
+
+7e29aa531f13   registry.k8s.io/pause:3.10                "/pause"                 About a minute ago   Up About a minute             k8s_POD_expensewise-c57955c6f-dzp7r_default_53636331-cc82-4ec4-ae85-cd4c5c077fc3_0
+67dbcab2bc1e   gcr.io/k8s-minikube/kube-registry-proxy   "/docker-entrypoint.…"   5 minutes ago        Up 5 minutes                  k8s_registry-proxy_registry-proxy-gkkp4_kube-system_29f45a4f-99bd-4eff-8543-a2d3479c0c8b_0
+91f690cace23   registry                                  "/entrypoint.sh /etc…"   6 minutes ago        Up 6 minutes                  k8s_registry_registry-66c9cd494c-z7rp4_kube-system_d7a5cff8-1cec-44b1-8043-e364364b699c_0
+ed0e8e721419   registry.k8s.io/pause:3.10                "/pause"                 6 minutes ago        Up 6 minutes                  k8s_POD_registry-proxy-gkkp4_kube-system_29f45a4f-99bd-4eff-8543-a2d3479c0c8b_0
+da5733d8c612   registry.k8s.io/pause:3.10                "/pause"                 6 minutes ago        Up 6 minutes                  k8s_POD_registry-66c9cd494c-z7rp4_kube-system_d7a5cff8-1cec-44b1-8043-e364364b699c_0
+dde67e7f7987   registry.k8s.io/pause:3.10                "/pause"                 12 minutes ago       Up 12 minutes                 k8s_POD_mysql-54c7f58c7-wbb84_default_5192f754-ff99-4703-a409-3f188328015c_0
+2a48a5639e6d   registry.k8s.io/pause:3.10                "/pause"                 4 hours ago          Up 4 hours                    k8s_POD_dashboard-metrics-scraper-c5db448b4-9nqtg_kubernetes-dashboard_141c542c-7d3f-4e91-835b-7e6a91105c67_0
+add6ba91584d   registry.k8s.io/pause:3.10                "/pause"                 4 hours ago          Up 4 hours                    k8s_POD_kubernetes-dashboard-695b96c756-kjj9t_kubernetes-dashboard_875f9e2a-9223-4265-8c19-84a4d2c549c1_0
+82b3cecbdd7b   registry.k8s.io/pause:3.10                "/pause"                 4 hours ago          Up 4 hours                    k8s_POD_coredns-6f6b679f8f-rfpsk_kube-system_1c5bb39d-c221-4efd-9798-1c56462ce5b6_0
+24acdcb34901   registry.k8s.io/pause:3.10                "/pause"                 4 hours ago          Up 4 hours                    k8s_POD_storage-provisioner_kube-system_3aeab15e-e68c-4ab3-a1d5-d9f8a5814ba2_0
+80c1230f7ec5   registry.k8s.io/pause:3.10                "/pause"                 4 hours ago          Up 4 hours                    k8s_POD_kube-proxy-d4tnr_kube-system_616597cb-a5d3-40e0-94f0-0d72c9c4d61f_0
+b9704b04d31a   registry.k8s.io/pause:3.10                "/pause"                 4 hours ago          Up 4 hours                    k8s_POD_kube-scheduler-minikube_kube-system_e039200acb850c82bb901653cc38ff6e_0
+a47b36c6d4a7   registry.k8s.io/pause:3.10                "/pause"                 4 hours ago          Up 4 hours                    k8s_POD_kube-controller-manager-minikube_kube-system_40f5f661ab65f2e4bfe41ac2993c01de_0
+130baa02ec76   registry.k8s.io/pause:3.10                "/pause"                 4 hours ago          Up 4 hours                    k8s_POD_kube-apiserver-minikube_kube-system_9e315b3a91fa9f6f7463439d9dac1a56_0
+4eb9a7a4e1a3   registry.k8s.io/pause:3.10                "/pause"                 4 hours ago          Up 4 hours                    k8s_POD_etcd-minikube_kube-system_a5363f4f31e043bdae3c93aca4991903_0
+
+❯ curl http://192.168.99.100:5000/v2/
+
+curl: (28) Failed to connect to 192.168.99.100 port 5000 after 75004 ms: Couldn't connect to server
+
+❯ docker run -d -p 5000:5000 --name registry registry:2
+
+Unable to find image 'registry:2' locally
+2: Pulling from library/registry
+Digest: sha256:ac0192b549007e22998eb74e8d8488dcfe70f1489520c3b144a6047ac5efbe90
+Status: Downloaded newer image for registry:2
+fd64dc94361f905b656bc8b527c793c244bfb0ffdfcf775ebd68e37d4dfa2436
+
+❯ docker logs registry
+time="2024-09-11T14:54:52.866359374Z" level=warning msg="No HTTP secret provided - generated random secret. This may cause problems with uploads if multiple registries are behind a load-balancer. To provide a shared secret, fill in http.secret in the configuration file or set the REGISTRY_HTTP_SECRET environment variable." go.version=go1.20.8 instance.id=e43457ec-390b-45a6-933b-cd2faee20b22 service=registry version=2.8.3 
+time="2024-09-11T14:54:52.866738662Z" level=info msg="redis not configured" go.version=go1.20.8 instance.id=e43457ec-390b-45a6-933b-cd2faee20b22 service=registry version=2.8.3 
+time="2024-09-11T14:54:52.889642688Z" level=info msg="using inmemory blob descriptor cache" go.version=go1.20.8 instance.id=e43457ec-390b-45a6-933b-cd2faee20b22 service=registry version=2.8.3 
+time="2024-09-11T14:54:52.899205697Z" level=info msg="listening on [::]:5000" go.version=go1.20.8 instance.id=e43457ec-390b-45a6-933b-cd2faee20b22 service=registry version=2.8.3 
+time="2024-09-11T14:54:52.899383008Z" level=info msg="Starting upload purge in 6m0s" go.version=go1.20.8 instance.id=e43457ec-390b-45a6-933b-cd2faee20b22 service=registry version=2.8.3 
+
+❯ minikube ip
+192.168.49.2
+
+❯ kubectl apply -f backend/ExpenseWise.yml
+service/expensewise unchanged
+deployment.apps/expensewise configured
+
+❯ docker stop registry
+docker rm registry
+
+registry
+registry
+
+❯ docker run -d -p 5000:5000 --name registry registry:2
+2f4fad3cf868264580b3f2088c87fe495b0c79d5ab2a1da6d896576debf6edb6
+❯ 
